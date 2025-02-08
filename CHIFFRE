@@ -1,0 +1,101 @@
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import jsPDF from "jspdf";
+import emailjs from "emailjs-com";
+
+export default function DailySalesEntry() {
+  const [formData, setFormData] = useState({
+    date: "",
+    tauxOccupation: "",
+    caHebergementHT: "",
+    prixMoyen: "",
+    revpar: "",
+    nombreOccupants: "",
+    nombreEnfants: "",
+    pdjVendusVeille: "",
+    caNoShow0: "",
+    caNoShow10: "",
+    petitsDejeuners: "",
+    restaurantsBanquets: "",
+    bar: "",
+    miniBar: "",
+    restaurationDivers: "",
+    locationSalle: "",
+    ventesDiverses: "",
+    totalCaHT: "",
+    taxes: "",
+    accorPaiementEnLigne: "",
+    onlineCB: "",
+    ogoneEurocard: "",
+    visaOgone: "",
+    allRewards: "",
+    virement: "",
+    americanExpress: "",
+    carteBancaire: "",
+    carteTRConecs: "",
+    chequeVacances: "",
+    chequeBanque: "",
+    ticketRestaurant: "",
+    debiteursDivers: "",
+    espece: ""
+  });
+
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    const savedEntries = JSON.parse(localStorage.getItem("dailySales")) || [];
+    setEntries(savedEntries);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("dailySales", JSON.stringify(entries));
+  }, [entries]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = () => {
+    if (!formData.date) return;
+    const updatedEntries = [...entries, formData];
+    setEntries(updatedEntries);
+    setFormData(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: "" }), {}));
+  };
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto font-[Montserrat] bg-[#003580] text-[#003580] min-h-screen">
+      <Card className="shadow-lg rounded-xl p-6 bg-white text-[#003580]">
+        <CardContent className="space-y-6">
+          <h2 className="text-3xl font-bold text-[#003580]">Novotel Tours Centre Gare - Saisie des chiffres journaliers</h2>
+          <Input type="date" name="date" value={formData.date} onChange={handleChange} className="border rounded-md p-2 w-full bg-white text-[#003580]" />
+          {Object.keys(formData).filter(key => key !== "date").map((key) => (
+            <Input key={key} type="text" name={key} value={formData[key]} onChange={handleChange} placeholder={key.replace(/([A-Z])/g, ' $1')} className="border rounded-md p-2 w-full bg-white text-[#003580]" />
+          ))}
+          <Button onClick={handleSubmit} className="bg-[#ffbc00] text-black px-4 py-2 rounded-md hover:bg-[#e6a700]">Enregistrer</Button>
+        </CardContent>
+      </Card>
+      <h2 className="text-3xl font-bold text-white mt-8">Historique des Saisies</h2>
+      <Table className="mt-6 bg-white shadow-lg rounded-xl overflow-hidden border border-[#003580] text-[#003580]">
+        <TableHeader className="bg-[#ffbc00] text-black">
+          <TableRow>
+            {Object.keys(formData).map((key) => (
+              <TableHead key={key} className="p-2 text-left font-semibold">{key.replace(/([A-Z])/g, ' $1')}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {entries.map((entry, index) => (
+            <TableRow key={index} className="border-b hover:bg-gray-200">
+              {Object.values(entry).map((value, i) => (
+                <TableCell key={i} className="p-2 text-[#003580]">{value}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
